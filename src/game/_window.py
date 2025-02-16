@@ -5,11 +5,12 @@ from src.game._utils import ASSETS_PATH
 
 
 class Window:
-    bg_img = pygame.transform.scale(pygame.image.load(ASSETS_PATH / "bg.png").convert_alpha(), (600, 900))
-    stat_font = pygame.font.SysFont("comicsans", 50)
-
     def __init__(self, win_width: int, win_height: int) -> None:
+        pygame.font.init()
+        pygame.display.set_caption("Flappy Bird")
         self.win = pygame.display.set_mode((win_width, win_height))
+        self.bg_img = pygame.transform.scale(pygame.image.load(ASSETS_PATH / "bg.png").convert_alpha(), (600, 900))
+        self.stat_font = pygame.font.SysFont("comicsans", 50)
 
     def draw(self, game_data: GameData) -> None:
         self.win.blit(self.bg_img, (0, 0))

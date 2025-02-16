@@ -1,5 +1,3 @@
-from typing import ClassVar
-
 import pygame
 from pygame import Mask, Surface
 
@@ -7,14 +5,11 @@ from src.game._utils import ASSETS_PATH
 
 
 class Bird:
-    images: ClassVar[list[Surface]] = [
-        pygame.transform.scale2x(pygame.image.load(ASSETS_PATH / f"bird{i}.png")) for i in range(1, 4)
-    ]
-    max_rotation = 25
-    rot_vel = 20
-    animation_time = 5
-
     def __init__(self, x: int, y: int) -> None:
+        self.images = [pygame.transform.scale2x(pygame.image.load(ASSETS_PATH / f"bird{i}.png")) for i in range(1, 4)]
+        self.max_rotation = 25
+        self.rotation_velocity = 20
+        self.animation_time = 5
         self.x = x
         self.y = y
         self.tilt = 0  # degrees to tilt
@@ -47,7 +42,7 @@ class Bird:
         if displacement < 0 or self.y < self.height + 50:  # tilt up
             self.tilt = max(self.tilt, self.max_rotation)
         elif self.tilt > -90:
-            self.tilt -= self.rot_vel
+            self.tilt -= self.rotation_velocity
 
     def draw(self, win: Surface) -> None:
         self.image_count += 1

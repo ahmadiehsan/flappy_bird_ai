@@ -8,21 +8,16 @@ from src.game._utils import ASSETS_PATH
 
 
 class Pipe:
-    image = pygame.transform.scale2x(pygame.image.load(ASSETS_PATH / "pipe.png").convert_alpha())
-    gap = 200
-    velocity = 5
-
     def __init__(self, x: int) -> None:
+        self.image = pygame.transform.scale2x(pygame.image.load(ASSETS_PATH / "pipe.png").convert_alpha())
+        self.gap = 200
+        self.velocity = 5
         self.x = x
         self.height = 0
-
-        # where the top and bottom of the pipe is
-        self.top = 0
-        self.bottom = 0
-
+        self.top = 0  # where the top of the pipe is
+        self.bottom = 0  # where the bottom of the pipe is
         self.pipe_top = pygame.transform.flip(self.image, flip_x=False, flip_y=True)
         self.pipe_bottom = self.image
-
         self.passed = False
         self._set_height()
 

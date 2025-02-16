@@ -30,7 +30,7 @@ requirements.install:
 # Game
 # =====
 game.start:
-	echo "Not implemented yet!"
+	PYTHONPATH=. python src/game/game.py
 
 # =========================
 # AI

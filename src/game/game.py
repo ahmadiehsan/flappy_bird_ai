@@ -27,7 +27,6 @@ class Game:
         )
 
     def start(self) -> None:
-        self._init_pygame()
         clock = pygame.time.Clock()
 
         while self.game_data.loop:
@@ -43,11 +42,6 @@ class Game:
             self._handle_pipes()
             self._handle_bird()
             self.window.draw(self.game_data)
-
-    @staticmethod
-    def _init_pygame() -> None:
-        pygame.font.init()
-        pygame.display.set_caption("Flappy Bird")
 
     def _handle_base(self) -> None:
         self.game_data.base.move()

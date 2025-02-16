@@ -5,11 +5,10 @@ from src.game._utils import ASSETS_PATH
 
 
 class Base:
-    image = pygame.transform.scale2x(pygame.image.load(ASSETS_PATH / "base.png").convert_alpha())
-    velocity = 5
-    width = image.get_width()
-
     def __init__(self, y: int) -> None:
+        self.image = pygame.transform.scale2x(pygame.image.load(ASSETS_PATH / "base.png").convert_alpha())
+        self.velocity = 5
+        self.width = self.image.get_width()
         self.y = y
         self.x1 = 0
         self.x2 = self.width
