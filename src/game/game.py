@@ -33,7 +33,7 @@ class Game:
             clock.tick(30)
 
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
+                if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                     self.game_data.loop = False
                     pygame.quit()
                     sys.exit()
@@ -71,6 +71,12 @@ class Game:
             self.game_data.pipes.remove(pipe_to_remove)
 
     def _handle_bird(self) -> None:
+        self.game_data.bird.move()
+
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
+                self.game_data.bird.jump()
+
         if (
             self.game_data.bird.y + self.game_data.bird.image.get_height() - 10 >= self.game_data.floor
             or self.game_data.bird.y < -50
