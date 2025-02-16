@@ -1,0 +1,118 @@
+# =========================
+# Poetry
+# =====
+[tool.poetry]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "~3.12"
+numpy = "2.2.3"
+pygame = "2.6.1"
+neat-python = "0.92"
+graphviz = "0.20.3"
+matplotlib = "3.10.0"
+
+[tool.poetry.dev-dependencies]
+pre-commit = "^4.0.1"
+
+# =========================
+# Ruff
+# =====
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+fix = true
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "D104",  # undocumented-public-package
+    "D100",  # undocumented-public-module
+    "D101",  # undocumented-public-class
+    "D106",  # undocumented-public-nested-class
+    "D107",  # undocumented-public-init
+    "D102",  # undocumented-public-method
+    "D105",  # undocumented-magic-method
+    "D103",  # undocumented-public-function
+    "D203",  # one-blank-line-before-class (conflict with D211)
+    "D213",  # multi-line-summary-second-line (conflict with D212)
+    "ANN401",  # any-type
+    "FIX002",  # line-contains-todo
+    "TD003",  # missing-todo-link
+    "TD001",  # invalid-todo-tag
+    "S311",  # suspicious-non-cryptographic-random-usage
+    "G004",  # logging-f-string
+    "S106",  # hardcoded-password-func-arg
+    "TRY003",  # raise-vanilla-args
+    "TRY400",  # error-instead-of-exception
+    "PLE1205",  # logging-too-many-args
+    "TC001",  # typing-only-first-party-import
+    "FBT001",  # boolean-type-hint-positional-argument
+    "FBT002",  # boolean-default-value-positional-argument
+    "S301",  # suspicious-pickle-usage
+    "PLR2004",  # magic-value-comparison
+    "COM812",  # missing-trailing-comma (Suggested by ruff to disable)
+    "ISC001",  # single-line-implicit-string-concatenation (Suggested by ruff to disable)
+]
+
+[tool.ruff.lint.isort]
+split-on-trailing-comma = false
+combine-as-imports = true
+
+[tool.ruff.lint.flake8-unused-arguments]
+ignore-variadic-names = true
+
+[tool.ruff.format]
+skip-magic-trailing-comma = true
+
+# =========================
+# MyPy
+# =====
+[tool.mypy]
+python_version = "3.12"
+disallow_untyped_defs = true
+warn_unused_ignores = true
+warn_unreachable = true
+warn_redundant_casts = true
+strict_equality = true
+strict_concatenate = true
+implicit_reexport = false
+
+# =========================
+# Pylint
+# =====
+[tool.pylint.main]
+py-version = "3.12"
+
+[tool.pylint.format]
+max-line-length = 120
+
+[tool.pylint."messages control"]
+disable = [
+    "missing-module-docstring",
+    "missing-class-docstring",
+    "missing-function-docstring",
+    "import-error",
+    "duplicate-code",
+    "too-few-public-methods",
+    "too-many-instance-attributes",
+    "too-many-locals",
+    "method-hidden",
+    "keyword-arg-before-vararg",
+    "too-many-positional-arguments",
+    "arguments-differ",
+    "undefined-variable",  # Pylint doesn't support Python3.12 format of generic types
+    "fixme",  # Ruff will handle it
+    "broad-exception-raised",  # Ruff will handle it
+    "line-too-long",  # Ruff will handle it
+    "unused-argument",  # Ruff will handle it
+    "too-many-arguments",  # Ruff will handle it
+    "too-many-branches",  # Ruff will handle it
+    "too-many-statements",  # Ruff will handle it
+    "bare-except",  # Ruff will handle it
+    "protected-access",  # Ruff will handle it
+    "unidiomatic-typecheck",  # Ruff will handle it
+    "broad-exception-caught",  # Ruff will handle it
+    "wrong-import-position",  # Ruff will handle it
+    "wrong-import-order",  # Ruff will handle it
+]
