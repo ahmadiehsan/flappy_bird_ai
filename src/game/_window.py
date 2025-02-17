@@ -1,27 +1,37 @@
 import pygame
 
-from src.game._game_data import GameData
+from src.game._dto import StateDto
 from src.game._utils import ASSETS_PATH
 
 
 class Window:
-    def __init__(self, win_width: int, win_height: int) -> None:
+    def __init__(self, state: StateDto) -> None:
         pygame.font.init()
         pygame.display.set_caption("Flappy Bird")
-        self.win = pygame.display.set_mode((win_width, win_height))
-        self.bg_img = pygame.transform.scale(pygame.image.load(ASSETS_PATH / "bg.png").convert_alpha(), (600, 900))
+        self.state = state
+        self.win = pygame.display.set_mode((self.state.win_width, self.state.win_height))
+        self.bg_surface = pygame.transform.scale(pygame.image.load(ASSETS_PATH / "bg.png").convert_alpha(), (600, 900))
         self.stat_font = pygame.font.SysFont("comicsans", 50)
 
-    def draw(self, game_data: GameData) -> None:
-        self.win.blit(self.bg_img, (0, 0))
+    def draw(self) -> None:
+        self._draw_bg()
 
-        for pipe in game_data.pipes:
+        for pipe in self.state.pipes:
             pipe.draw(self.win)
 
-        game_data.base.draw(self.win)
-        game_data.bird.draw(self.win)
+        for ground in self.state.grounds:
+            ground.draw(self.win)
 
-        score_label = self.stat_font.render("Score: " + str(game_data.score), 1, (255, 255, 255))
-        self.win.blit(score_label, (self.win.get_width() - score_label.get_width() - 15, 10))
+        for bird in self.state.birds:
+            bird.draw(self.win)
 
+        self._draw_scoreboard()
         pygame.display.update()
+
+    def _draw_bg(self) -> None:
+        self.win.blit(self.bg_surface, (0, 0))
+
+    def _draw_scoreboard(self) -> None:
+        for key, val in self.state.scoreboard.items():
+            label = self.stat_font.render(f"{key}: {val}", 1, (255, 255, 255))
+            self.win.blit(label, (self.win.get_width() - label.get_width() - 15, 10))
