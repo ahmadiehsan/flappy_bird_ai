@@ -10,11 +10,12 @@ from pygame.event import Event
 class GameStartDto[TMeta]:  # pylint: disable=C0103
     bird_init_count: int
     bird_metas: list[TMeta]
-    hook_new_frame: Callable[[TMeta], None] | None
-    hook_new_level: Callable[[TMeta], None] | None
-    hook_lose: Callable[[TMeta], None] | None
+    hook_on_new_frame: Callable[[TMeta], None] | None
+    hook_on_new_level: Callable[[TMeta], None] | None
+    hook_on_lose: Callable[[TMeta], None] | None
     hook_new_events: Callable[[TMeta, int, int, int], None] | None
-    hook_filter_events: Callable[[list[Event]], list[Event]] | None
+    hook_select_event: Callable[[TMeta, Event], bool] | None
+    hook_new_scoreboard_entries: Callable[[], dict[str, int]] | None
 
     def __post_init__(self) -> None:
         self._validate_bird_init_count()
@@ -35,21 +36,25 @@ class GameStartDto[TMeta]:  # pylint: disable=C0103
         return self.bird_metas if self.bird_metas else [cast(TMeta, i) for i in range(self.bird_init_count)]
 
     @cached_property
-    def hook_new_frame_safe(self) -> Callable[[TMeta], None]:
-        return self.hook_new_frame if self.hook_new_frame else lambda *args, **kwargs: None
+    def hook_on_new_frame_safe(self) -> Callable[[TMeta], None]:
+        return self.hook_on_new_frame if self.hook_on_new_frame else lambda *args, **kwargs: None
 
     @cached_property
-    def hook_new_level_safe(self) -> Callable[[TMeta], None]:
-        return self.hook_new_level if self.hook_new_level else lambda *args, **kwargs: None
+    def hook_on_new_level_safe(self) -> Callable[[TMeta], None]:
+        return self.hook_on_new_level if self.hook_on_new_level else lambda *args, **kwargs: None
 
     @cached_property
-    def hook_lose_safe(self) -> Callable[[TMeta], None]:
-        return self.hook_lose if self.hook_lose else lambda *args, **kwargs: None
+    def hook_on_lose_safe(self) -> Callable[[TMeta], None]:
+        return self.hook_on_lose if self.hook_on_lose else lambda *args, **kwargs: None
 
     @cached_property
     def hook_new_events_safe(self) -> Callable[[TMeta, int, int, int], None]:
         return self.hook_new_events if self.hook_new_events else lambda *args, **kwargs: None
 
     @cached_property
-    def hook_filter_events_safe(self) -> Callable[[list[Event]], list[Event]]:
-        return self.hook_filter_events if self.hook_filter_events else lambda events: events
+    def hook_select_event_safe(self) -> Callable[[TMeta, Event], bool]:
+        return self.hook_select_event if self.hook_select_event else lambda *args, **kwargs: True
+
+    @cached_property
+    def hook_new_scoreboard_entries_safe(self) -> Callable[[], dict[str, int]]:
+        return self.hook_new_scoreboard_entries if self.hook_new_scoreboard_entries else lambda *args, **kwargs: {}

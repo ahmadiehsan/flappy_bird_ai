@@ -13,6 +13,7 @@ from src.shared_kernel.path import ROOT_PATH
 
 class Ai:
     def __init__(self) -> None:
+        self.generation = 0
         self.game = Game()
 
     def start(self) -> None:
@@ -49,24 +50,27 @@ class Ai:
             GameStartDto(
                 bird_init_count=len(metas),
                 bird_metas=metas,
-                hook_new_frame=self._hook_new_frame,
-                hook_new_level=self._hook_new_level,
-                hook_lose=self._hook_lose,
+                hook_on_new_frame=self._hook_on_new_frame,
+                hook_on_new_level=self._hook_on_new_level,
+                hook_on_lose=self._hook_on_lose,
                 hook_new_events=self._hook_new_events,
-                hook_filter_events=self._hook_filter_events,
+                hook_select_event=self._hook_select_event,
+                hook_new_scoreboard_entries=self._hook_new_scoreboard_entries,
             )
         )
 
+        self.generation += 1
+
     @staticmethod
-    def _hook_new_frame(meta: BirdMeta) -> None:
+    def _hook_on_new_frame(meta: BirdMeta) -> None:
         meta.genome.fitness += 0.1
 
     @staticmethod
-    def _hook_new_level(meta: BirdMeta) -> None:
+    def _hook_on_new_level(meta: BirdMeta) -> None:
         meta.genome.fitness += 5
 
     @staticmethod
-    def _hook_lose(meta: BirdMeta) -> None:
+    def _hook_on_lose(meta: BirdMeta) -> None:
         meta.genome.fitness -= 1
 
     @staticmethod
@@ -75,11 +79,16 @@ class Ai:
         output = meta.network.activate((bird_y_center, top_pipe_y_bottom, bottom_pipe_y_top))
 
         if output[0] > 0:  # we use a tanh activation function so result will be between -1 and 1
-            pygame.event.post(Event(pygame.KEYDOWN, key=pygame.K_UP, ai_generated=True))
+            pygame.event.post(Event(pygame.KEYDOWN, key=pygame.K_UP, ai_generated=True, meta_id=id(meta)))
 
     @staticmethod
-    def _hook_filter_events(events: list[Event]) -> list[Event]:
-        return [e for e in events if getattr(e, "ai_generated", False)]
+    def _hook_select_event(meta: BirdMeta, event: Event) -> bool:
+        is_ai_generated = getattr(event, "ai_generated", False)
+        is_related_to_meta = id(meta) == getattr(event, "meta_id", None)
+        return is_ai_generated and is_related_to_meta
+
+    def _hook_new_scoreboard_entries(self) -> dict[str, int]:
+        return {"generation": self.generation}
 
 
 if __name__ == "__main__":

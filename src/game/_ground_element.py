@@ -1,6 +1,5 @@
 import pygame
 from pygame import Surface
-from pygame.event import Event
 
 from src.game._i_element import IElement
 from src.game._utils import ASSETS_PATH
@@ -13,7 +12,7 @@ class GroundElement(IElement):
         self.y_top = win_height - int(win_height / 8)
         self.velocity = 5
 
-    def move(self, events: list[Event]) -> None:  # noqa: ARG002
+    def move(self) -> None:
         self.x_left -= self.velocity
 
     def draw(self, win: Surface) -> None:

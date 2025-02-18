@@ -37,9 +37,7 @@ class Coordinator:
             top_pipe_y_bottom, bottom_pipe_y_top = self._get_upcoming_pipes_y(bird)
             self.start_dto.hook_new_events_safe(meta, bird.y_center, top_pipe_y_bottom, bottom_pipe_y_top)
 
-        events = pygame.event.get()
-        filtered_events = self.start_dto.hook_filter_events_safe(events)
-        self.summary.events = filtered_events
+        self.summary.events = pygame.event.get()
 
     def _get_upcoming_pipes_y(self, bird: BirdElement) -> tuple[int, int]:
         top_pipe = next((p for p in self.state.pipes if p.x_left > bird.x_left and p.is_upside_down), None)
@@ -57,14 +55,28 @@ class Coordinator:
                 sys.exit()
 
     def _move_elements(self) -> None:
+        self._move_grounds()
+        self._move_pipes()
+        self._move_birds()
+
+    def _move_grounds(self) -> None:
         for ground in self.state.grounds:
-            ground.move(self.summary.events)
+            ground.move()
 
+    def _move_pipes(self) -> None:
         for pipe in self.state.pipes:
-            pipe.move(self.summary.events)
+            pipe.move()
 
-        for bird in self.state.birds:
-            bird.move(self.summary.events)
+    def _move_birds(self) -> None:
+        for idx, bird in enumerate(self.state.birds):
+            bird.move()
+
+            for event in self.summary.events:
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
+                    meta = self.start_dto.bird_metas_safe[idx]
+
+                    if self.start_dto.hook_select_event_safe(meta, event):
+                        bird.jump()
 
     def _collide_elements(self) -> None:
         self._bird_pipe_collide()
@@ -177,6 +189,10 @@ class Coordinator:
 
         self.state.scoreboard_set("birds", len(self.state.birds))
 
+        new_entries = self.start_dto.hook_new_scoreboard_entries_safe()
+        for key, val in new_entries.items():
+            self.state.scoreboard_set(key, val)
+
     def _garbage_collect_elements(self) -> None:
         self._garbage_collect_grounds()
         self._garbage_collect_pipes()
@@ -196,12 +212,12 @@ class Coordinator:
         for loser_idx in sorted(self.summary.loser_bird_indexes, reverse=True):
             meta = self.start_dto.bird_metas_safe[loser_idx]
             del self.state.birds[loser_idx]
-            self.start_dto.hook_lose_safe(meta)
+            self.start_dto.hook_on_lose_safe(meta)
             del self.start_dto.bird_metas_safe[loser_idx]
 
         for alive_idx in range(len(self.state.birds)):
             meta = self.start_dto.bird_metas_safe[alive_idx]
-            self.start_dto.hook_new_frame_safe(meta)
+            self.start_dto.hook_on_new_frame_safe(meta)
 
             if self.summary.is_new_level:
-                self.start_dto.hook_new_level_safe(meta)
+                self.start_dto.hook_on_new_level_safe(meta)

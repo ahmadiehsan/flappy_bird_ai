@@ -1,16 +1,12 @@
 from abc import ABC, abstractmethod
 
 from pygame import Rect, Surface
-from pygame.event import Event
 
 
 class IElement(ABC):
     surface: Surface
     x_left: int
     y_top: int
-
-    @abstractmethod
-    def move(self, events: list[Event]) -> None: ...
 
     @abstractmethod
     def draw(self, win: Surface) -> None: ...

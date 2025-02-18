@@ -30,10 +30,11 @@ if __name__ == "__main__":
         GameStartDto(
             bird_init_count=1,
             bird_metas=[],
-            hook_filter_events=None,
-            hook_new_frame=None,
-            hook_new_level=None,
-            hook_lose=None,
+            hook_on_new_frame=None,
+            hook_on_new_level=None,
+            hook_on_lose=None,
             hook_new_events=None,
+            hook_select_event=None,
+            hook_new_scoreboard_entries=None,
         )
     )
