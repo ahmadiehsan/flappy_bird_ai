@@ -2,6 +2,7 @@ import logging
 
 import neat
 from neat import DefaultGenome
+from pygame.event import Event
 
 from src.ai._dto import BirdMeta
 from src.game.dto import GameStartDto
@@ -50,22 +51,27 @@ class Ai:
             GameStartDto(
                 bird_init_count=len(metas),
                 bird_metas=metas,
-                hook_after_frame=self._hook_after_frame,
-                hook_after_level=self._hook_after_level,
-                hook_after_lose=self._hook_after_lose,
+                hook_filter_events=self._hook_filter_events,
+                hook_new_frame=self._hook_new_frame,
+                hook_new_level=self._hook_new_level,
+                hook_lose=self._hook_lose,
             )
         )
 
     @staticmethod
-    def _hook_after_frame(meta: BirdMeta) -> None:
+    def _hook_filter_events(events: list[Event]) -> list[Event]:
+        return [e for e in events if getattr(e, "ai_generated", False)]
+
+    @staticmethod
+    def _hook_new_frame(meta: BirdMeta) -> None:
         meta.genome.fitness += 0.1
 
     @staticmethod
-    def _hook_after_level(meta: BirdMeta) -> None:
+    def _hook_new_level(meta: BirdMeta) -> None:
         meta.genome.fitness += 5
 
     @staticmethod
-    def _hook_after_lose(meta: BirdMeta) -> None:
+    def _hook_lose(meta: BirdMeta) -> None:
         meta.genome.fitness -= 1
 
 

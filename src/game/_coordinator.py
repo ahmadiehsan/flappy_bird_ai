@@ -7,11 +7,13 @@ from src.game._bird_element import BirdElement
 from src.game._dto import CoordinatorSummaryDto, StateDto
 from src.game._ground_element import GroundElement
 from src.game._pipe_element import PipeElement
+from src.game.dto import GameStartDto
 
 
 class Coordinator:
-    def __init__(self, state: StateDto) -> None:
+    def __init__(self, state: StateDto, start_dto: GameStartDto) -> None:
         self.state = state
+        self.start_dto = start_dto
         self.summary = CoordinatorSummaryDto()
 
     def initialize(self) -> None:
@@ -30,7 +32,9 @@ class Coordinator:
         self.summary.reset()
 
     def _track_events(self) -> None:
-        self.summary.events = pygame.event.get()
+        events = pygame.event.get()
+        filtered_events = self.start_dto.hook_filter_events_safe(events)
+        self.summary.events = filtered_events
 
     def _exit(self) -> None:
         for event in self.summary.events:
@@ -138,7 +142,7 @@ class Coordinator:
             return
 
         news: list[BirdElement] = []
-        while len(news) < self.state.bird_init_count:
+        while len(news) < self.start_dto.bird_init_count:
             bird = BirdElement(win_width=self.state.win_width, win_height=self.state.win_height)
             news.append(bird)
 
@@ -177,11 +181,11 @@ class Coordinator:
     def _garbage_collect_birds(self) -> None:
         for loser_idx in sorted(self.summary.loser_bird_indexes, reverse=True):
             del self.state.birds[loser_idx]
-            self.state.hook_after_lose_safe(self.state.bird_metas_safe[loser_idx])
-            del self.state.bird_metas_safe[loser_idx]
+            self.start_dto.hook_lose_safe(self.start_dto.bird_metas_safe[loser_idx])
+            del self.start_dto.bird_metas_safe[loser_idx]
 
         for alive_idx in range(len(self.state.birds)):
-            self.state.hook_after_frame_safe(self.state.bird_metas_safe[alive_idx])
+            self.start_dto.hook_new_frame_safe(self.start_dto.bird_metas_safe[alive_idx])
 
             if self.summary.is_new_level:
-                self.state.hook_after_level_safe(self.state.bird_metas_safe[alive_idx])
+                self.start_dto.hook_new_level_safe(self.start_dto.bird_metas_safe[alive_idx])

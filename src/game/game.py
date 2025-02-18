@@ -8,9 +8,9 @@ from src.game.dto import GameStartDto
 
 class Game:
     def start(self, dto: GameStartDto) -> None:
-        state = self._create_state(dto)
+        state = self._create_state()
         window = Window(state)
-        coordinator = Coordinator(state)
+        coordinator = Coordinator(state, dto)
 
         clock = pygame.time.Clock()
         coordinator.initialize()
@@ -21,25 +21,18 @@ class Game:
             window.draw()
 
     @staticmethod
-    def _create_state(dto: GameStartDto) -> StateDto:
-        return StateDto(
-            bird_init_count=dto.bird_init_count,
-            bird_metas=dto.bird_metas,
-            hook_after_frame=dto.hook_after_frame,
-            hook_after_level=dto.hook_after_level,
-            hook_after_lose=dto.hook_after_lose,
-            win_width=600,
-            win_height=800,
-            grounds=[],
-            pipes=[],
-            birds=[],
-            level=1,
-        )
+    def _create_state() -> StateDto:
+        return StateDto(win_width=600, win_height=800, grounds=[], pipes=[], birds=[], level=1)
 
 
 if __name__ == "__main__":
     Game().start(
         GameStartDto(
-            bird_init_count=1, bird_metas=[], hook_after_frame=None, hook_after_level=None, hook_after_lose=None
+            bird_init_count=1,
+            bird_metas=[],
+            hook_filter_events=None,
+            hook_new_frame=None,
+            hook_new_level=None,
+            hook_lose=None,
         )
     )
