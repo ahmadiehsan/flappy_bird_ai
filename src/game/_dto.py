@@ -1,6 +1,7 @@
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any
+from functools import cached_property
+from typing import Any, cast
 
 from pygame.event import Event
 
@@ -12,10 +13,10 @@ from src.game._pipe_element import PipeElement
 @dataclass(kw_only=True)
 class StateDto[TMeta]:  # pylint: disable=C0103
     bird_init_count: int
-    bird_metas: dict[str, TMeta]
-    hook_after_frame: Callable[[dict[str, TMeta], str], None] | None
-    hook_after_score: Callable[[dict[str, TMeta], str, int], None] | None
-    hook_after_lose: Callable[[dict[str, TMeta], str], None] | None
+    bird_metas: list[TMeta]
+    hook_after_frame: Callable[[TMeta], None] | None
+    hook_after_level: Callable[[TMeta], None] | None
+    hook_after_lose: Callable[[TMeta], None] | None
     win_width: int
     win_height: int
     grounds: list[GroundElement]
@@ -32,22 +33,29 @@ class StateDto[TMeta]:  # pylint: disable=C0103
         self.scoreboard.setdefault(key, 0)
         self.scoreboard[key] += diff_val
 
+    @cached_property
+    def bird_metas_safe(self) -> list[TMeta]:
+        if not self.bird_metas:
+            return [cast(TMeta, i) for i in range(len(self.birds))]
+
+        return self.bird_metas
+
     @property
-    def hook_after_frame_safe(self) -> Callable[[dict[str, TMeta], str], None]:
+    def hook_after_frame_safe(self) -> Callable[[TMeta], None]:
         if not self.hook_after_frame:
             return self._null_func
 
         return self.hook_after_frame
 
     @property
-    def hook_after_score_safe(self) -> Callable[[dict[str, TMeta], str, int], None]:
-        if not self.hook_after_score:
+    def hook_after_level_safe(self) -> Callable[[TMeta], None]:
+        if not self.hook_after_level:
             return self._null_func
 
-        return self.hook_after_score
+        return self.hook_after_level
 
     @property
-    def hook_after_lose_safe(self) -> Callable[[dict[str, TMeta], str], None]:
+    def hook_after_lose_safe(self) -> Callable[[TMeta], None]:
         if not self.hook_after_lose:
             return self._null_func
 
@@ -60,14 +68,14 @@ class StateDto[TMeta]:  # pylint: disable=C0103
 
 @dataclass(kw_only=True)
 class CoordinatorSummaryDto:
-    loser_birds: set[BirdElement] = field(default_factory=set)
+    loser_bird_indexes: set[int] = field(default_factory=set)
     need_new_pipe: bool = False
-    score_update_amount: int = 0
+    is_new_level: bool = False
     events: list[Event] = field(default_factory=list)
     game_is_started: bool = False  # INFO: don't need to reset this key in the reset method
 
     def reset(self) -> None:
-        self.loser_birds = set()
+        self.loser_bird_indexes = set()
         self.need_new_pipe = False
-        self.score_update_amount = 0
+        self.is_new_level = False
         self.events = []

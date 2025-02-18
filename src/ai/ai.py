@@ -40,35 +40,33 @@ class Ai:
     def _eval_genomes(self, genomes: list[tuple[int, DefaultGenome]], config: neat.config.Config) -> None:
         self.generation += 1
 
-        metas = {}  # dict holding the genome itself, the neural network associated with the genome
-        for genome_id, genome in genomes:
+        metas = []  # list holding the genome itself, the neural network associated with the genome
+        for _, genome in genomes:
             genome.fitness = 0  # start with fitness level of 0
-            meta_id = str(genome_id)
             network = neat.nn.FeedForwardNetwork.create(genome, config)
-            metas[meta_id] = BirdMeta(network=network, genome=genome)
+            metas.append(BirdMeta(network=network, genome=genome))
 
         self.game.start(
             GameStartDto(
                 bird_init_count=len(metas),
                 bird_metas=metas,
-                hook_after_frame=self._hook_after_frame_func,
-                hook_after_score=self._hook_after_score_func,
-                hook_after_lose=self._hook_after_lose_func,
+                hook_after_frame=self._hook_after_frame,
+                hook_after_level=self._hook_after_level,
+                hook_after_lose=self._hook_after_lose,
             )
         )
 
     @staticmethod
-    def _hook_after_frame_func(metas: dict[str, BirdMeta], meta_id: str) -> None:
-        metas[meta_id].genome.fitness += 0.1
+    def _hook_after_frame(meta: BirdMeta) -> None:
+        meta.genome.fitness += 0.1
 
     @staticmethod
-    def _hook_after_score_func(metas: dict[str, BirdMeta], meta_id: str, diff_val: int) -> None:
-        metas[meta_id].genome.fitness += diff_val * 5
+    def _hook_after_level(meta: BirdMeta) -> None:
+        meta.genome.fitness += 5
 
     @staticmethod
-    def _hook_after_lose_func(metas: dict[str, BirdMeta], meta_id: str) -> None:
-        metas[meta_id].genome.fitness -= 1
-        del metas[meta_id]
+    def _hook_after_lose(meta: BirdMeta) -> None:
+        meta.genome.fitness -= 1
 
 
 if __name__ == "__main__":

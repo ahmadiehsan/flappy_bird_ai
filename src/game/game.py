@@ -26,7 +26,7 @@ class Game:
             bird_init_count=dto.bird_init_count,
             bird_metas=dto.bird_metas,
             hook_after_frame=dto.hook_after_frame,
-            hook_after_score=dto.hook_after_score,
+            hook_after_level=dto.hook_after_level,
             hook_after_lose=dto.hook_after_lose,
             win_width=600,
             win_height=800,
@@ -40,6 +40,6 @@ class Game:
 if __name__ == "__main__":
     Game().start(
         GameStartDto(
-            bird_init_count=1, bird_metas={}, hook_after_frame=None, hook_after_score=None, hook_after_lose=None
+            bird_init_count=1, bird_metas=[], hook_after_frame=None, hook_after_level=None, hook_after_lose=None
         )
     )
