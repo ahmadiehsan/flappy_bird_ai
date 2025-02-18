@@ -36,7 +36,7 @@ game.start:
 # AI
 # =====
 ai.train:
-	echo "Not implemented yet!"
+	PYTHONPATH=. python src/ai/ai.py
 
 # =========================
 # Help

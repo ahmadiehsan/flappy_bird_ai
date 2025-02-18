@@ -62,6 +62,9 @@ combine-as-imports = true
 [tool.ruff.lint.flake8-unused-arguments]
 ignore-variadic-names = true
 
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
 [tool.ruff.format]
 skip-magic-trailing-comma = true
 

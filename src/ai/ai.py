@@ -1,6 +1,7 @@
 import logging
 
 import neat
+import pygame
 from neat import DefaultGenome
 from pygame.event import Event
 
@@ -12,7 +13,6 @@ from src.shared_kernel.path import ROOT_PATH
 
 class Ai:
     def __init__(self) -> None:
-        self.generation = 0
         self.game = Game()
 
     def start(self) -> None:
@@ -39,8 +39,6 @@ class Ai:
         )
 
     def _eval_genomes(self, genomes: list[tuple[int, DefaultGenome]], config: neat.config.Config) -> None:
-        self.generation += 1
-
         metas = []  # list holding the genome itself, the neural network associated with the genome
         for _, genome in genomes:
             genome.fitness = 0  # start with fitness level of 0
@@ -51,16 +49,13 @@ class Ai:
             GameStartDto(
                 bird_init_count=len(metas),
                 bird_metas=metas,
-                hook_filter_events=self._hook_filter_events,
                 hook_new_frame=self._hook_new_frame,
                 hook_new_level=self._hook_new_level,
                 hook_lose=self._hook_lose,
+                hook_new_events=self._hook_new_events,
+                hook_filter_events=self._hook_filter_events,
             )
         )
-
-    @staticmethod
-    def _hook_filter_events(events: list[Event]) -> list[Event]:
-        return [e for e in events if getattr(e, "ai_generated", False)]
 
     @staticmethod
     def _hook_new_frame(meta: BirdMeta) -> None:
@@ -73,6 +68,18 @@ class Ai:
     @staticmethod
     def _hook_lose(meta: BirdMeta) -> None:
         meta.genome.fitness -= 1
+
+    @staticmethod
+    def _hook_new_events(meta: BirdMeta, bird_y_center: int, top_pipe_y_bottom: int, bottom_pipe_y_top: int) -> None:
+        # send bird location and top/bottom pipe location and determine from the network whether to jump or not
+        output = meta.network.activate((bird_y_center, top_pipe_y_bottom, bottom_pipe_y_top))
+
+        if output[0] > 0:  # we use a tanh activation function so result will be between -1 and 1
+            pygame.event.post(Event(pygame.KEYDOWN, key=pygame.K_UP, ai_generated=True))
+
+    @staticmethod
+    def _hook_filter_events(events: list[Event]) -> list[Event]:
+        return [e for e in events if getattr(e, "ai_generated", False)]
 
 
 if __name__ == "__main__":

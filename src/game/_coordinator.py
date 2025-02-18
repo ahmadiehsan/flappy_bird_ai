@@ -32,9 +32,23 @@ class Coordinator:
         self.summary.reset()
 
     def _track_events(self) -> None:
+        for idx, bird in enumerate(self.state.birds):
+            meta = self.start_dto.bird_metas_safe[idx]
+            top_pipe_y_bottom, bottom_pipe_y_top = self._get_upcoming_pipes_y(bird)
+            self.start_dto.hook_new_events_safe(meta, bird.y_center, top_pipe_y_bottom, bottom_pipe_y_top)
+
         events = pygame.event.get()
         filtered_events = self.start_dto.hook_filter_events_safe(events)
         self.summary.events = filtered_events
+
+    def _get_upcoming_pipes_y(self, bird: BirdElement) -> tuple[int, int]:
+        top_pipe = next((p for p in self.state.pipes if p.x_left > bird.x_left and p.is_upside_down), None)
+        bottom_pipe = next((p for p in self.state.pipes if p.x_left > bird.x_left and not p.is_upside_down), None)
+
+        top_pipe_y_bottom = top_pipe.y_bottom if top_pipe else 0
+        bottom_pipe_y_top = bottom_pipe.y_top if bottom_pipe else self.state.win_height
+
+        return top_pipe_y_bottom, bottom_pipe_y_top
 
     def _exit(self) -> None:
         for event in self.summary.events:
@@ -74,10 +88,10 @@ class Coordinator:
     def _bird_window_edges_collide(self) -> None:
         for idx, bird in enumerate(self.state.birds):
             if (
-                bird.top_lef_x < 0
-                or (bird.top_lef_x + bird.width) > self.state.win_width
-                or bird.top_lef_y < 0
-                or (bird.top_lef_y + bird.height) > self.state.win_height
+                bird.x_left < 0
+                or bird.x_right > self.state.win_width
+                or bird.y_top < 0
+                or bird.y_bottom > self.state.win_height
             ):
                 self.summary.loser_bird_indexes.add(idx)
 
@@ -89,7 +103,7 @@ class Coordinator:
     def _add_new_grounds(self) -> None:
         try:
             last_element = self.state.grounds[-1]
-            left_space = last_element.top_lef_x + last_element.width
+            left_space = last_element.x_right
         except IndexError:
             left_space = 0
 
@@ -97,13 +111,13 @@ class Coordinator:
         while left_space < self.state.win_width:
             ground = GroundElement(left_space=left_space, win_height=self.state.win_height)
             news.append(ground)
-            left_space = ground.top_lef_x + ground.width
+            left_space = ground.x_right
 
         self.state.grounds.extend(news)
 
     def _add_new_paired_pipes(self) -> None:
         try:
-            need_new_pipe = self.state.pipes[-1].top_lef_x < self.state.birds[-1].top_lef_x
+            need_new_pipe = self.state.pipes[-1].x_left < self.state.birds[-1].x_left
         except IndexError:
             need_new_pipe = True
 
@@ -169,23 +183,25 @@ class Coordinator:
         self._garbage_collect_birds()
 
     def _garbage_collect_grounds(self) -> None:
-        indexes = [i for i, g in enumerate(self.state.grounds) if g.top_lef_x + g.width < 0]
+        indexes = [i for i, g in enumerate(self.state.grounds) if g.x_right < 0]
         for idx in sorted(indexes, reverse=True):
             del self.state.grounds[idx]
 
     def _garbage_collect_pipes(self) -> None:
-        indexes = [i for i, p in enumerate(self.state.pipes) if p.top_lef_x + p.width < 0]
+        indexes = [i for i, p in enumerate(self.state.pipes) if p.x_right < 0]
         for idx in sorted(indexes, reverse=True):
             del self.state.pipes[idx]
 
     def _garbage_collect_birds(self) -> None:
         for loser_idx in sorted(self.summary.loser_bird_indexes, reverse=True):
+            meta = self.start_dto.bird_metas_safe[loser_idx]
             del self.state.birds[loser_idx]
-            self.start_dto.hook_lose_safe(self.start_dto.bird_metas_safe[loser_idx])
+            self.start_dto.hook_lose_safe(meta)
             del self.start_dto.bird_metas_safe[loser_idx]
 
         for alive_idx in range(len(self.state.birds)):
-            self.start_dto.hook_new_frame_safe(self.start_dto.bird_metas_safe[alive_idx])
+            meta = self.start_dto.bird_metas_safe[alive_idx]
+            self.start_dto.hook_new_frame_safe(meta)
 
             if self.summary.is_new_level:
-                self.start_dto.hook_new_level_safe(self.start_dto.bird_metas_safe[alive_idx])
+                self.start_dto.hook_new_level_safe(meta)

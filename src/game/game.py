@@ -34,5 +34,6 @@ if __name__ == "__main__":
             hook_new_frame=None,
             hook_new_level=None,
             hook_lose=None,
+            hook_new_events=None,
         )
     )

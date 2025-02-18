@@ -14,8 +14,8 @@ class BirdElement(IElement):
     def __init__(self, *, win_width: int, win_height: int) -> None:
         self.surfaces = [pygame.transform.scale2x(pygame.image.load(ASSETS_PATH / f"bird{i}.png")) for i in range(1, 4)]
         self.surface = self.surfaces[0]
-        self.top_lef_x = int(win_width / 2) - self.width
-        self.top_lef_y = int(win_height / 2) - int(self.height / 2)
+        self.x_left = int(win_width / 2) - self.width
+        self.y_top = int(win_height / 2) - int(self.height / 2)
         self.tilt = 0  # degrees to tilt
         self.tick_count = 0
         self.velocity = 0
@@ -48,7 +48,7 @@ class BirdElement(IElement):
 
         # tilt the bird
         rotated_image = pygame.transform.rotate(self.surface, self.tilt)
-        new_rect = rotated_image.get_rect(center=self.surface.get_rect(topleft=(self.top_lef_x, self.top_lef_y)).center)
+        new_rect = rotated_image.get_rect(center=self.surface.get_rect(topleft=(self.x_left, self.y_top)).center)
 
         # draw it
         win.blit(rotated_image, new_rect.topleft)
@@ -66,7 +66,7 @@ class BirdElement(IElement):
         if displacement < 0:
             displacement -= 2
 
-        self.top_lef_y = self.top_lef_y + displacement
+        self.y_top += displacement
 
         if displacement < 0:  # tilt up
             self.tilt = max(self.tilt, self.max_rotation)

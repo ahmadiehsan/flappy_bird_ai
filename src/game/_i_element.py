@@ -6,8 +6,8 @@ from pygame.event import Event
 
 class IElement(ABC):
     surface: Surface
-    top_lef_x: int
-    top_lef_y: int
+    x_left: int
+    y_top: int
 
     @abstractmethod
     def move(self, events: list[Event]) -> None: ...
@@ -17,7 +17,7 @@ class IElement(ABC):
 
     @property
     def absolute_rect(self) -> Rect:
-        return self.surface.get_rect(topleft=(self.top_lef_x, self.top_lef_y))
+        return self.surface.get_rect(topleft=(self.x_left, self.y_top))
 
     @property
     def width(self) -> int:
@@ -26,3 +26,19 @@ class IElement(ABC):
     @property
     def height(self) -> int:
         return self.surface.get_height()
+
+    @property
+    def x_center(self) -> int:
+        return self.x_left + int(self.width / 2)
+
+    @property
+    def x_right(self) -> int:
+        return self.x_left + self.width
+
+    @property
+    def y_center(self) -> int:
+        return self.y_top + int(self.height / 2)
+
+    @property
+    def y_bottom(self) -> int:
+        return self.y_top + self.height
