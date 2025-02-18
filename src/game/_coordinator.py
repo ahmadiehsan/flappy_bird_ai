@@ -40,8 +40,8 @@ class Coordinator:
         self.summary.events = pygame.event.get()
 
     def _get_upcoming_pipes_y(self, bird: BirdElement) -> tuple[int, int]:
-        top_pipe = next((p for p in self.state.pipes if p.x_left > bird.x_left and p.is_upside_down), None)
-        bottom_pipe = next((p for p in self.state.pipes if p.x_left > bird.x_left and not p.is_upside_down), None)
+        top_pipe = next((p for p in self.state.pipes if p.x_right > bird.x_left and p.is_upside_down), None)
+        bottom_pipe = next((p for p in self.state.pipes if p.x_right > bird.x_left and not p.is_upside_down), None)
 
         top_pipe_y_bottom = top_pipe.y_bottom if top_pipe else 0
         bottom_pipe_y_top = bottom_pipe.y_top if bottom_pipe else self.state.win_height
@@ -142,11 +142,11 @@ class Coordinator:
         else:
             left_space = self.state.win_width - int(self.state.win_width / 10)
 
-        space_between = max(150, 250 - self.state.level)  # Decreases as the level goes up
+        between_space = max(150, 250 - (self.state.level * 3))  # Decreases as the level goes up
         min_height = 90
-        max_height = self.state.win_height - space_between - min_height
+        max_height = self.state.win_height - between_space - min_height
         pipe_1_height = random.randint(min_height, max_height)
-        pipe_2_height = self.state.win_height - space_between - pipe_1_height
+        pipe_2_height = self.state.win_height - between_space - pipe_1_height
         news = [
             PipeElement(
                 visible_height=pipe_1_height,

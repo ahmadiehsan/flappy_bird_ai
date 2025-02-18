@@ -1,4 +1,5 @@
-import logging
+import re
+from pathlib import Path
 
 import neat
 import pygame
@@ -8,36 +9,70 @@ from pygame.event import Event
 from src.ai._dto import BirdMeta
 from src.game.dto import GameStartDto
 from src.game.game import Game
+from src.shared_kernel.logger import logger
 from src.shared_kernel.path import ROOT_PATH
 
 
 class Ai:
+    save_prefix = "neat-checkpoint-"
+    save_path = ROOT_PATH / "output"
+    config_file_path = ROOT_PATH / "configs" / "neat_feedforward.txt"
+
     def __init__(self) -> None:
         self.generation = 0
         self.game = Game()
 
     def start(self) -> None:
-        config = self._load_config()
+        population = self._load_or_create_population()
+        self._add_reporters(population)
+        self.generation = population.generation
+        winner = population.run(self._eval_genomes, 200)
+        logger.info("best genome: %s", winner)
 
-        # create the population, which is the top-level object for a NEAT run
-        population = neat.Population(config)
+    def _load_or_create_population(self) -> neat.Population:
+        checkpoint_path = self._get_latest_checkpoint()
 
+        if checkpoint_path:
+            logger.info("restoring from checkpoint: %s", checkpoint_path)
+            population = neat.Checkpointer.restore_checkpoint(str(checkpoint_path))
+        else:
+            config = self._load_config()
+            population = neat.Population(config)
+
+        return population
+
+    def _get_latest_checkpoint(self) -> Path | None:
+        checkpoints = {}
+
+        for item in self.save_path.iterdir():
+            if item.is_file():
+                match = re.match(rf"{self.save_prefix}(\d+)", item.name)
+                if match:
+                    generation = int(match.group(1))
+                    checkpoints[generation] = item
+
+        if not checkpoints:
+            return None
+
+        return checkpoints[max(checkpoints)]
+
+    def _load_config(self) -> neat.config.Config:
+        return neat.config.Config(
+            neat.DefaultGenome,
+            neat.DefaultReproduction,
+            neat.DefaultSpeciesSet,
+            neat.DefaultStagnation,
+            self.config_file_path,
+        )
+
+    def _add_reporters(self, population: neat.Population) -> None:
         # add a stdout reporter to show progress in the terminal
         population.add_reporter(neat.StdOutReporter(show_species_detail=True))
         population.add_reporter(neat.StatisticsReporter())
 
-        # run for up to 50 generations.
-        winner = population.run(self._eval_genomes, 50)
-
-        # show final stats
-        logging.info("best genome: %s", winner)
-
-    @staticmethod
-    def _load_config() -> neat.config.Config:
-        config_file = ROOT_PATH / "configs" / "feedforward.txt"
-        return neat.config.Config(
-            neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet, neat.DefaultStagnation, config_file
-        )
+        # add save reporter
+        save_file_path = self.save_path / self.save_prefix
+        population.add_reporter(neat.Checkpointer(generation_interval=5, filename_prefix=str(save_file_path)))
 
     def _eval_genomes(self, genomes: list[tuple[int, DefaultGenome]], config: neat.config.Config) -> None:
         metas = []  # list holding the genome itself, the neural network associated with the genome
