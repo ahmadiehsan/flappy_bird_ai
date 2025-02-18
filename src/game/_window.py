@@ -32,6 +32,8 @@ class Window:
         self.win.blit(self.bg_surface, (0, 0))
 
     def _draw_scoreboard(self) -> None:
-        for key, val in self.state.scoreboard.items():
+        for idx, (key, val) in enumerate(self.state.scoreboard.items()):
             label = self.stat_font.render(f"{key}: {val}", 1, (255, 255, 255))
-            self.win.blit(label, (self.win.get_width() - label.get_width() - 15, 10))
+            left_space = self.state.win_width - label.get_width() - 15
+            top_space = (40 * idx) + 10
+            self.win.blit(label, (left_space, top_space))

@@ -109,7 +109,7 @@ class Coordinator:
         if self.summary.game_is_started:
             left_space = self.state.win_width
         else:
-            left_space = self.state.win_width - int(self.state.win_width / 3)
+            left_space = self.state.win_width - int(self.state.win_width / 10)
 
         between_space = 200
         min_height = 40
@@ -172,10 +172,20 @@ class Coordinator:
             del self.state.pipes[index]
 
     def _garbage_collect_birds(self) -> None:
-        for bird_idx, (bird, meta_id) in enumerate(zip(self.state.birds, self.state.bird_metas_safe, strict=True)):
+        if self.state.bird_metas:
+            has_meta = True
+            iterate_on = zip(self.state.birds, self.state.bird_metas, strict=True)
+        else:
+            has_meta = False
+            iterate_on = zip(self.state.birds, [str(i) for i in range(len(self.state.birds))], strict=True)
+
+        for bird_idx, (bird, meta_id) in enumerate(iterate_on):
             if bird in self.summary.loser_birds:
                 del self.state.birds[bird_idx]
-                del self.state.bird_metas[meta_id]
+
+                if has_meta:
+                    del self.state.bird_metas[meta_id]
+
                 self.state.hook_after_lose_safe(self.state.bird_metas, meta_id)
             else:
                 self.state.hook_after_frame_safe(self.state.bird_metas, meta_id)

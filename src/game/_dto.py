@@ -1,6 +1,6 @@
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, cast
+from typing import Any
 
 from pygame.event import Event
 
@@ -31,13 +31,6 @@ class StateDto[TMeta]:  # pylint: disable=C0103
     def scoreboard_diff(self, key: str, diff_val: int) -> None:
         self.scoreboard.setdefault(key, 0)
         self.scoreboard[key] += diff_val
-
-    @property
-    def bird_metas_safe(self) -> dict[str, TMeta]:
-        if not self.bird_metas:
-            return {str(i): cast(TMeta, i) for i in range(len(self.birds))}
-
-        return self.bird_metas
 
     @property
     def hook_after_frame_safe(self) -> Callable[[dict[str, TMeta], str], None]:
