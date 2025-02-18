@@ -1,3 +1,3 @@
-from pathlib import Path
+from src.shared_kernel.path import ROOT_PATH
 
-ASSETS_PATH = Path(__file__).resolve().parent / "assets"
+ASSETS_PATH = ROOT_PATH / "src" / "game" / "assets"

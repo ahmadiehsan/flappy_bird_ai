@@ -3,36 +3,43 @@ import pygame
 from src.game._coordinator import Coordinator
 from src.game._dto import StateDto
 from src.game._window import Window
+from src.game.dto import GameStartDto
 
 
 class Game:
-    def __init__(self) -> None:
-        self.state = self._create_state()
-        self.window = Window(self.state)
-        self.coordinator = Coordinator(self.state)
+    def start(self, dto: GameStartDto) -> None:
+        state = self._create_state(dto)
+        window = Window(state)
+        coordinator = Coordinator(state)
 
-    def start(self) -> None:
         clock = pygame.time.Clock()
-        self.coordinator.initialize()
+        coordinator.initialize()
 
-        while not self.state.game_is_over:
+        while state.birds:
             clock.tick(30)
-            self.coordinator.act()
-            self.window.draw()
+            coordinator.act()
+            window.draw()
 
     @staticmethod
-    def _create_state() -> StateDto:
+    def _create_state(dto: GameStartDto) -> StateDto:
         return StateDto(
+            bird_init_count=dto.bird_init_count,
+            bird_metas=dto.bird_metas,
+            hook_after_frame=dto.hook_after_frame,
+            hook_after_score=dto.hook_after_score,
+            hook_after_lose=dto.hook_after_lose,
             win_width=600,
             win_height=800,
             grounds=[],
             pipes=[],
             birds=[],
             level=1,
-            game_is_started=False,
-            game_is_over=False,
         )
 
 
 if __name__ == "__main__":
-    Game().start()
+    Game().start(
+        GameStartDto(
+            bird_init_count=1, bird_metas={}, hook_after_frame=None, hook_after_score=None, hook_after_lose=None
+        )
+    )

@@ -2,10 +2,9 @@ import random
 import sys
 
 import pygame
-from pygame.event import Event
 
 from src.game._bird_element import BirdElement
-from src.game._dto import StateDto
+from src.game._dto import CoordinatorSummaryDto, StateDto
 from src.game._ground_element import GroundElement
 from src.game._pipe_element import PipeElement
 
@@ -13,37 +12,43 @@ from src.game._pipe_element import PipeElement
 class Coordinator:
     def __init__(self, state: StateDto) -> None:
         self.state = state
+        self.summary = CoordinatorSummaryDto()
 
     def initialize(self) -> None:
-        self.state.game_is_started = True
-        self.state.scoreboard_diff("score", 0)
-        self._updates()
+        self._add_new_elements()
+        self._update_scores()
+        self.summary.game_is_started = True
 
     def act(self) -> None:
-        events = pygame.event.get()
-        self._exit(events)
-        self._moves(events)
-        self._collides()
-        self._updates()
+        self._track_events()
+        self._exit()
+        self._move_elements()
+        self._collide_elements()
+        self._add_new_elements()
+        self._update_scores()
+        self._garbage_collect_elements()
+        self.summary.reset()
 
-    def _exit(self, events: list[Event]) -> None:
-        for event in events:
+    def _track_events(self) -> None:
+        self.summary.events = pygame.event.get()
+
+    def _exit(self) -> None:
+        for event in self.summary.events:
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                self.state.game_is_over = True
                 pygame.quit()
                 sys.exit()
 
-    def _moves(self, events: list[Event]) -> None:
+    def _move_elements(self) -> None:
         for ground in self.state.grounds:
-            ground.move(events)
+            ground.move(self.summary.events)
 
         for pipe in self.state.pipes:
-            pipe.move(events)
+            pipe.move(self.summary.events)
 
         for bird in self.state.birds:
-            bird.move(events)
+            bird.move(self.summary.events)
 
-    def _collides(self) -> None:
+    def _collide_elements(self) -> None:
         self._bird_pipe_collide()
         self._bird_ground_collide()
         self._bird_window_edges_collide()
@@ -52,36 +57,32 @@ class Coordinator:
         for bird in self.state.birds:
             for pipe in self.state.pipes:
                 if bird.absolute_rect.colliderect(pipe.absolute_rect):
-                    self.state.game_is_over = True
+                    self.summary.loser_birds.add(bird)
                     break
 
     def _bird_ground_collide(self) -> None:
         for bird in self.state.birds:
             for ground in self.state.grounds:
                 if bird.absolute_rect.colliderect(ground.absolute_rect):
-                    self.state.game_is_over = True
+                    self.summary.loser_birds.add(bird)
                     break
 
     def _bird_window_edges_collide(self) -> None:
         for bird in self.state.birds:
-            if bird.top_lef_x < 0 or (bird.top_lef_x + bird.width) > self.state.win_width:
-                self.state.game_is_over = True
-                break
+            if (
+                bird.top_lef_x < 0
+                or (bird.top_lef_x + bird.width) > self.state.win_width
+                or bird.top_lef_y < 0
+                or (bird.top_lef_y + bird.height) > self.state.win_height
+            ):
+                self.summary.loser_birds.add(bird)
 
-            if bird.top_lef_y < 0 or (bird.top_lef_y + bird.height) > self.state.win_height:
-                self.state.game_is_over = True
-                break
+    def _add_new_elements(self) -> None:
+        self._add_new_grounds()
+        self._add_new_paired_pipes()
+        self._add_new_birds()
 
-    def _updates(self) -> None:
-        self._update_grounds()
-        self._update_paired_pipes()
-        self._update_birds()
-
-    def _update_grounds(self) -> None:
-        removes = [g for g in self.state.grounds if g.top_lef_x + g.width < 0]
-        for remove in removes:
-            self.state.grounds.remove(remove)
-
+    def _add_new_grounds(self) -> None:
         try:
             last_element = self.state.grounds[-1]
             left_space = last_element.top_lef_x + last_element.width
@@ -96,22 +97,20 @@ class Coordinator:
 
         self.state.grounds.extend(news)
 
-    def _update_paired_pipes(self) -> None:
-        removes = [p for p in self.state.pipes if p.top_lef_x + p.width < 0]
-        for remove in removes:
-            self.state.pipes.remove(remove)
-
+    def _add_new_paired_pipes(self) -> None:
         try:
-            need_new = self.state.pipes[-1].top_lef_x < self.state.birds[-1].top_lef_x
+            self.summary.need_new_pipe = self.state.pipes[-1].top_lef_x < self.state.birds[-1].top_lef_x
         except IndexError:
-            need_new = True
+            self.summary.need_new_pipe = True
 
-        if not need_new:
+        if not self.summary.need_new_pipe:
             return
 
-        left_space = (
-            self.state.win_width if self.state.game_is_started else self.state.win_width - int(self.state.win_width / 3)
-        )
+        if self.summary.game_is_started:
+            left_space = self.state.win_width
+        else:
+            left_space = self.state.win_width - int(self.state.win_width / 3)
+
         between_space = 200
         min_height = 40
         max_height = self.state.win_height - between_space - min_height
@@ -132,13 +131,54 @@ class Coordinator:
             ),
         ]
         self.state.pipes.extend(news)
-        self.state.level += 1
-        self.state.scoreboard_diff("score", 1)
 
-    def _update_birds(self) -> None:
-        need_new = not bool(self.state.birds)
-        if not need_new:
+    def _add_new_birds(self) -> None:
+        if self.summary.game_is_started:
             return
 
-        new_elements = [BirdElement(win_width=self.state.win_width, win_height=self.state.win_height)]
-        self.state.birds.extend(new_elements)
+        news: list[BirdElement] = []
+        while len(news) < self.state.bird_init_count:
+            bird = BirdElement(win_width=self.state.win_width, win_height=self.state.win_height)
+            news.append(bird)
+
+        self.state.birds.extend(news)
+
+    def _update_scores(self) -> None:
+        if not self.summary.game_is_started:
+            self.state.scoreboard_set("score", 0)
+            self.state.scoreboard_set("birds", len(self.state.birds))
+            return
+
+        if self.summary.need_new_pipe:
+            self.state.level += 1
+            self.summary.score_update_amount = 1
+
+        self.state.scoreboard_diff("score", self.summary.score_update_amount)
+        self.state.scoreboard_set("birds", len(self.state.birds))
+
+    def _garbage_collect_elements(self) -> None:
+        self._garbage_collect_grounds()
+        self._garbage_collect_pipes()
+        self._garbage_collect_birds()
+
+    def _garbage_collect_grounds(self) -> None:
+        indexes = [i for i, g in enumerate(self.state.grounds) if g.top_lef_x + g.width < 0]
+        for index in indexes:
+            del self.state.grounds[index]
+
+    def _garbage_collect_pipes(self) -> None:
+        indexes = [i for i, p in enumerate(self.state.pipes) if p.top_lef_x + p.width < 0]
+        for index in indexes:
+            del self.state.pipes[index]
+
+    def _garbage_collect_birds(self) -> None:
+        for bird_idx, (bird, meta_id) in enumerate(zip(self.state.birds, self.state.bird_metas_safe, strict=True)):
+            if bird in self.summary.loser_birds:
+                del self.state.birds[bird_idx]
+                del self.state.bird_metas[meta_id]
+                self.state.hook_after_lose_safe(self.state.bird_metas, meta_id)
+            else:
+                self.state.hook_after_frame_safe(self.state.bird_metas, meta_id)
+
+            if self.summary.score_update_amount:
+                self.state.hook_after_score_safe(self.state.bird_metas, meta_id, self.summary.score_update_amount)
