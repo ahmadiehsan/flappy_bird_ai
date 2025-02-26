@@ -1,4 +1,4 @@
-# Flappy Bird (NEAT)
+# Flappy Bird (NEAT algorithm)
 
 AI plays Flappy Bird
 
