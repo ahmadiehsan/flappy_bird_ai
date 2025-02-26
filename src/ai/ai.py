@@ -113,7 +113,7 @@ class Ai:
         # send bird location and top/bottom pipe location and determine from the network whether to jump or not
         output = meta.network.activate((bird_y_center, top_pipe_y_bottom, bottom_pipe_y_top))
 
-        if output[0] > 0:  # we use a tanh activation function so result will be between -1 and 1
+        if output[0] > 0:  # we use a relu activation function so result will be between 0 and infinity
             pygame.event.post(Event(pygame.KEYDOWN, key=pygame.K_UP, ai_generated=True, meta_id=id(meta)))
 
     @staticmethod
