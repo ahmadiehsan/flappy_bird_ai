@@ -56,8 +56,8 @@ class Ai:
 
         return checkpoints[max(checkpoints)]
 
-    def _load_config(self) -> neat.config.Config:
-        return neat.config.Config(
+    def _load_config(self) -> neat.Config:
+        return neat.Config(
             neat.DefaultGenome,
             neat.DefaultReproduction,
             neat.DefaultSpeciesSet,

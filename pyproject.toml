@@ -6,15 +6,13 @@ package-mode = false
 
 [tool.poetry.dependencies]
 python = "~3.12"
-numpy = "2.2.3"
 pygame = "2.6.1"
 neat-python = "0.92"
-graphviz = "0.20.3"
-matplotlib = "3.10.0"
 
-[tool.poetry.dev-dependencies]
-pre-commit = "^4.0.1"
-ruff = "^0.9.7"
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.15.0"
+pre-commit = "^4.2.0"
+ruff = "^0.11.4"
 
 # =========================
 # Ruff
@@ -27,31 +25,31 @@ fix = true
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-    "D104",  # undocumented-public-package
-    "D100",  # undocumented-public-module
-    "D101",  # undocumented-public-class
-    "D106",  # undocumented-public-nested-class
-    "D107",  # undocumented-public-init
-    "D102",  # undocumented-public-method
-    "D105",  # undocumented-magic-method
-    "D103",  # undocumented-public-function
-    "D203",  # one-blank-line-before-class (conflict with D211)
-    "D213",  # multi-line-summary-second-line (conflict with D212)
+    "D104",    # undocumented-public-package
+    "D100",    # undocumented-public-module
+    "D101",    # undocumented-public-class
+    "D106",    # undocumented-public-nested-class
+    "D107",    # undocumented-public-init
+    "D102",    # undocumented-public-method
+    "D105",    # undocumented-magic-method
+    "D103",    # undocumented-public-function
+    "D203",    # one-blank-line-before-class (conflict with D211)
+    "D213",    # multi-line-summary-second-line (conflict with D212)
     "ANN401",  # any-type
     "FIX002",  # line-contains-todo
-    "TD003",  # missing-todo-link
-    "TD001",  # invalid-todo-tag
-    "S311",  # suspicious-non-cryptographic-random-usage
-    "G004",  # logging-f-string
-    "S106",  # hardcoded-password-func-arg
+    "TD003",   # missing-todo-link
+    "TD001",   # invalid-todo-tag
+    "S311",    # suspicious-non-cryptographic-random-usage
+    "G004",    # logging-f-string
+    "S106",    # hardcoded-password-func-arg
     "TRY003",  # raise-vanilla-args
     "TRY400",  # error-instead-of-exception
-    "PLE1205",  # logging-too-many-args
-    "TC001",  # typing-only-first-party-import
+    "PLE1205", # logging-too-many-args
+    "TC001",   # typing-only-first-party-import
     "FBT001",  # boolean-type-hint-positional-argument
     "FBT002",  # boolean-default-value-positional-argument
-    "S301",  # suspicious-pickle-usage
-    "PLR2004",  # magic-value-comparison
+    "S301",    # suspicious-pickle-usage
+    "PLR2004", # magic-value-comparison
     "COM812",  # missing-trailing-comma (Suggested by ruff to disable)
     "ISC001",  # single-line-implicit-string-concatenation (Suggested by ruff to disable)
 ]
@@ -105,18 +103,18 @@ disable = [
     "keyword-arg-before-vararg",
     "too-many-positional-arguments",
     "arguments-differ",
-    "undefined-variable",  # Pylint doesn't support Python3.12 format of generic types
-    "fixme",  # Ruff will handle it
-    "broad-exception-raised",  # Ruff will handle it
-    "line-too-long",  # Ruff will handle it
-    "unused-argument",  # Ruff will handle it
-    "too-many-arguments",  # Ruff will handle it
-    "too-many-branches",  # Ruff will handle it
-    "too-many-statements",  # Ruff will handle it
-    "bare-except",  # Ruff will handle it
-    "protected-access",  # Ruff will handle it
-    "unidiomatic-typecheck",  # Ruff will handle it
-    "broad-exception-caught",  # Ruff will handle it
-    "wrong-import-position",  # Ruff will handle it
-    "wrong-import-order",  # Ruff will handle it
+    "undefined-variable",            # Pylint doesn't support Python3.12 format of generic types
+    "fixme",                         # Ruff will handle it
+    "broad-exception-raised",        # Ruff will handle it
+    "line-too-long",                 # Ruff will handle it
+    "unused-argument",               # Ruff will handle it
+    "too-many-arguments",            # Ruff will handle it
+    "too-many-branches",             # Ruff will handle it
+    "too-many-statements",           # Ruff will handle it
+    "bare-except",                   # Ruff will handle it
+    "protected-access",              # Ruff will handle it
+    "unidiomatic-typecheck",         # Ruff will handle it
+    "broad-exception-caught",        # Ruff will handle it
+    "wrong-import-position",         # Ruff will handle it
+    "wrong-import-order",            # Ruff will handle it
 ]

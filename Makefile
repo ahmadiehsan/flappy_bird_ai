@@ -19,11 +19,11 @@ pre_commit.run_for_all:
 # Requirements
 # =====
 requirements.compile:
-	pip install -q poetry==1.8.5
+	pip install -q poetry==2.1.2
 	poetry update
 
 requirements.install:
-	pip install -q poetry==1.8.5
+	pip install -q poetry==2.1.2
 	poetry install
 
 # =========================

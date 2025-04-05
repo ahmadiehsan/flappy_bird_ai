@@ -33,7 +33,7 @@ class GameStartDto[TMeta]:  # pylint: disable=C0103
 
     @cached_property
     def bird_metas_safe(self) -> list[TMeta]:
-        return self.bird_metas if self.bird_metas else [cast(TMeta, i) for i in range(self.bird_init_count)]
+        return self.bird_metas if self.bird_metas else [cast("TMeta", i) for i in range(self.bird_init_count)]
 
     @cached_property
     def hook_on_new_frame_safe(self) -> Callable[[TMeta], None]:
