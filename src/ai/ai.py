@@ -16,7 +16,7 @@ from src.shared_kernel.path import ROOT_PATH
 class Ai:
     save_prefix = "neat-checkpoint-"
     save_path = ROOT_PATH / "output"
-    config_file_path = ROOT_PATH / "configs" / "neat_feedforward.txt"
+    config_file_path = ROOT_PATH / "settings" / "neat_feedforward.txt"
 
     def __init__(self) -> None:
         self.generation = 0

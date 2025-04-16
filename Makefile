@@ -2,45 +2,53 @@
 # Init
 # =====
 .DEFAULT_GOAL := help
+.SILENT:
 
 # =========================
 # Requirements
 # =====
 requirements.compile:
-	pip install -q poetry==2.1.2
-	poetry update
+	uv lock
 
 requirements.install:
-	pip install -q poetry==2.1.2
-	poetry install
+	uv sync
 
 # =========================
 # PreCommit
 # =====
 pre_commit.init:
-	pre-commit install
-	pre-commit install --hook-type pre-push
-	pre-commit install --hook-type commit-msg
+	uv run pre-commit install
+	uv run pre-commit install --hook-type pre-push
+	uv run pre-commit install --hook-type commit-msg
 	oco hook set
 
 pre_commit.run_for_all:
-	pre-commit run --all-files
+	uv run pre-commit run --all-files
 
 # =========================
 # Game
 # =====
 game.start:
-	PYTHONPATH=. python src/game/game.py
+	PYTHONPATH=. uv run src/game/game.py
 
 # =========================
 # AI
 # =====
 ai.train:
-	PYTHONPATH=. python src/ai/ai.py
+	PYTHONPATH=. uv run src/ai/ai.py
+
+# =========================
+# Scripts
+# =====
+script.dir_checker:
+	PYTHONPATH=. uv run scripts/dir_checker/main.py
+
+script.python_checker:
+	PYTHONPATH=. uv run scripts/python_checker/main.py
 
 # =========================
 # Help
 # =====
 help:
-	@echo "Available targets:"
-	@grep -E '^[a-zA-Z0-9][a-zA-Z0-9._-]*:' Makefile | sort | awk -F: '{print "  "$$1}'
+	echo "available targets:"
+	grep -E '^[a-zA-Z0-9][a-zA-Z0-9._-]*:' Makefile | sort | awk -F: '{print "  "$$1}'
