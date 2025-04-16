@@ -10,9 +10,6 @@
 requirements.compile:
 	uv lock
 
-requirements.install:
-	uv sync
-
 # =========================
 # PreCommit
 # =====
@@ -41,10 +38,10 @@ ai.train:
 # Scripts
 # =====
 script.dir_checker:
-	PYTHONPATH=. uv run scripts/dir_checker/main.py
+	PYTHONPATH=. uv run --no-sync scripts/dir_checker/main.py
 
 script.python_checker:
-	PYTHONPATH=. uv run scripts/python_checker/main.py
+	PYTHONPATH=. uv run --no-sync scripts/python_checker/main.py
 
 # =========================
 # Help

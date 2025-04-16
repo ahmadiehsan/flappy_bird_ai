@@ -35,7 +35,7 @@ repos:
       - id: dir_checker
         name: validate directories
         language: python
-        entry: env PYTHONPATH=. uv run --active scripts/dir_checker/main.py
+        entry: env PYTHONPATH=. uv run --active --no-sync scripts/dir_checker/main.py
         pass_filenames: false
 
   - repo: local
@@ -43,7 +43,7 @@ repos:
       - id: python_checker
         name: validate python files
         language: python
-        entry: env PYTHONPATH=. uv run --active scripts/python_checker/main.py
+        entry: env PYTHONPATH=. uv run --active --no-sync scripts/python_checker/main.py
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.15.0

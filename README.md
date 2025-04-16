@@ -6,8 +6,7 @@ AI plays Flappy Bird
 
 ```shell
 git clone <this/repo/url>
-cd flappy_bird_ai
-make requirements.install
+curl -LsSf https://astral.sh/uv/install.sh | sh
 make ai.train
 ```
 
