@@ -32,13 +32,13 @@ git.run_hooks_for_all:
 # Game
 # =====
 game.start:
-	PYTHONPATH=. uv run src/game/game.py
+	PYTHONPATH=. uv run --no-dev src/game/game.py
 
 # =========================
 # AI
 # =====
 ai.train:
-	PYTHONPATH=. uv run src/ai/ai.py
+	PYTHONPATH=. uv run --no-dev src/ai/ai.py
 
 # =========================
 # Scripts
