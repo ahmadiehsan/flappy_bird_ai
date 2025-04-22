@@ -44,10 +44,10 @@ ai.train:
 # Scripts
 # =====
 script.dir_checker:
-	PYTHONPATH=. uv run --no-sync scripts/dir_checker/main.py
+	uv run --only-dev dir_checker
 
 script.python_checker:
-	PYTHONPATH=. uv run --no-sync scripts/python_checker/main.py
+	uv run --only-dev python_checker
 
 # =========================
 # Help

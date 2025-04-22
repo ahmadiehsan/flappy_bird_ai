@@ -8,13 +8,21 @@ requires-python = ">=3.12,<3.13"
 dependencies = ["neat-python==0.92", "pygame==2.6.1"]
 
 [dependency-groups]
-dev = ["mypy>=1.15.0,<2", "pre-commit>=4.2.0,<5", "ruff>=0.11.4,<0.12"]
+dev = [
+    "fixmate",
+    "mypy>=1.15.0,<2",
+    "pre-commit>=4.2.0,<5",
+    "ruff>=0.11.4,<0.12",
+]
 
 # =========================
 # UV
 # =====
 [tool.uv]
 package = false
+
+[tool.uv.sources]
+fixmate = { git = "https://github.com/ahmadiehsan/fixmate.git", rev = "1.0.1" }
 
 # =========================
 # Ruff

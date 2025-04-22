@@ -35,26 +35,16 @@ repos:
       - id: ruff
       - id: ruff-format
 
-  - repo: local
+  - repo: https://github.com/ahmadiehsan/fixmate
+    rev: 1.0.1
     hooks:
       - id: dir_checker
-        name: validate directories
-        language: python
-        entry: env PYTHONPATH=. uv run --active --no-sync scripts/dir_checker/main.py
-        pass_filenames: false
-
-  - repo: local
-    hooks:
       - id: python_checker
-        name: validate python files
-        language: python
-        entry: env PYTHONPATH=. uv run --active --no-sync scripts/python_checker/main.py
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.15.0
     hooks:
       - id: mypy
-        additional_dependencies: [types-requests==2.32.0.20250328]
 
   - repo: https://github.com/pycqa/pylint
     rev: v3.3.6
