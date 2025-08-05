@@ -6,6 +6,11 @@
         "**/.idea": true,
         "**/.ruff_cache": true
     },
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.patterns": {
+        "pyproject.toml": "uv.lock",
+        ".pre-commit-config.yaml": ".env, .checkmake.ini",
+    },
     "cSpell.words": [
         "ahmadiehsan",
         "blit",
