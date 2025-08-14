@@ -10,9 +10,9 @@ dependencies = ["neat-python==0.92", "pygame==2.6.1"]
 [dependency-groups]
 dev = [
     "fixmate",
-    "mypy>=1.15.0,<2",
-    "pre-commit>=4.2.0,<5",
-    "ruff>=0.11.4,<0.12",
+    "mypy>=1.17.1,<2",
+    "pre-commit>=4.3.0,<5",
+    "ruff>=0.12.7,<0.13",
 ]
 
 # =========================
@@ -22,7 +22,7 @@ dev = [
 package = false
 
 [tool.uv.sources]
-fixmate = { git = "https://github.com/ahmadiehsan/fixmate.git", rev = "1.0.1" }
+fixmate = { git = "https://github.com/ahmadiehsan/fixmate.git", rev = "2.0.2" }
 
 # =========================
 # Ruff

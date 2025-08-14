@@ -27,13 +27,13 @@ class Ai:
         self._add_reporters(population)
         self.generation = population.generation
         winner = population.run(self._eval_genomes, 200)
-        logger.info("best genome: %s", winner)
+        logger.info("Best genome: %s", winner)
 
     def _load_or_create_population(self) -> neat.Population:
         checkpoint_path = self._get_latest_checkpoint()
 
         if checkpoint_path:
-            logger.info("restoring from checkpoint: %s", checkpoint_path)
+            logger.info("Restoring from checkpoint: %s", checkpoint_path)
             population = neat.Checkpointer.restore_checkpoint(str(checkpoint_path))
         else:
             config = self._load_config()
