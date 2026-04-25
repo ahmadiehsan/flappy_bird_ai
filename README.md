@@ -7,8 +7,11 @@ AI plays Flappy Bird
 ```shell
 git clone <this/repo/url>
 cd <cloned_dir>
-curl -LsSf https://astral.sh/uv/0.8.10/install.sh | sh
-make ai.train
+
+curl -LsSf https://astral.sh/uv/0.11.7/install.sh | sh
+uv tool install rust-just
+
+just manage train
 ```
 
 ## Demo
@@ -18,12 +21,7 @@ make ai.train
 ## Developers
 
 ```shell
-npm install -g opencommit
-oco config set OCO_API_URL="<llm/provider/api/url>"
-oco config set OCO_API_KEY="<llm_provider_api_key>"
-oco config set OCO_MODEL="<desired_llm_name>"
-
-make dependencies.install
-make git.init_hooks
-make help
+just dependencies install
+just git init_hooks
+just help
 ```
